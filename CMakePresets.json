@@ -1,0 +1,52 @@
+{
+  "version": 6,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 23,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "all",
+      "displayName": "All Config",
+      "description": "Default build using Ninja generator",
+      "cacheVariables": {
+        "SHAMAN_ENABLE_EXAMPLES": "ON",
+        "SHAMAN_ENABLE_TESTS": "ON"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "all",
+      "configurePreset": "all"
+    }
+  ],
+  "testPresets": [
+    {
+      "name": "all",
+      "configurePreset": "all",
+      "output": {"outputOnFailure": true},
+      "execution": {"noTestsAction": "error", "stopOnFailure": true}
+    }
+  ],
+  "workflowPresets": [
+    {
+      "name": "all",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "all"
+        },
+        {
+          "type": "build",
+          "name": "all"
+        },
+        {
+          "type": "test",
+          "name": "all"
+        }
+      ]
+    }
+  ]
+}
