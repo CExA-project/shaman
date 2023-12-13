@@ -41,19 +41,20 @@ int main(int argc, char* argv[]) {
     Sdouble sum = 0;
 
     Kokkos::parallel_reduce(
-      n, KOKKOS_LAMBDA(const int i, Sdouble& lsum) { lsum += i * i; }, sum);
+      n, KOKKOS_LAMBDA(const int i, Sdouble& lsum) { auto val = Sdouble(i+1); lsum += 1/val * 1/val; }, sum);
 
     std::cout <<
-            "Sum of squares of integers from 0 to " << n-1 <<
+            "Sum from 0 to " << n-1 <<
             ", computed in parallel, is " << sum << std::endl;
 
     // Compare to a sequential loop.
     Sdouble seqSum = 0;
     for (int i = 0; i < n; ++i) {
-        seqSum += i * i;
+        Sdouble val = i + 1;
+        seqSum += 1/val * 1/val;
     }
     std::cout <<
-                 "Sum of squares of integers from 0 to " << n-1 <<
+                 "Sum from 0 to " << n-1 <<
                  ", computed in sequential, is " << seqSum << std::endl;
 
     Kokkos::finalize();
