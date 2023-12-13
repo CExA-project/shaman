@@ -15,7 +15,8 @@
 //@HEADER
 
 #include <Kokkos_Core.hpp>
-#include <cstdio>
+
+#include <shaman.h>
 
 //
 // First reduction (parallel_reduce) example:
@@ -31,39 +32,32 @@
 
 int main(int argc, char* argv[]) {
     Kokkos::initialize(argc, argv);
-    const int n = 10;
+    const int n = 1<<24;
 
     // Compute the sum of squares of integers from 0 to n-1, in
     // parallel, using Kokkos.  This time, use a lambda instead of a
     // functor.  The lambda takes the same arguments as the functor's
     // operator().
-    int sum = 0;
-// The KOKKOS_LAMBDA macro replaces the capture-by-value clause [=].
-// It also handles any other syntax needed for CUDA.
-// We also need to protect the usage of a lambda against compiling
-// with a backend which doesn't support it (i.e. Cuda 6.5/7.0).
-#if defined(KOKKOS_ENABLE_CXX11_DISPATCH_LAMBDA)
+    Sdouble sum = 0;
+
     Kokkos::parallel_reduce(
-      n, KOKKOS_LAMBDA(const int i, int& lsum) { lsum += i * i; }, sum);
-#endif
-    printf(
-            "Sum of squares of integers from 0 to %i, "
-            "computed in parallel, is %i\n",
-            n - 1, sum);
+      n, KOKKOS_LAMBDA(const int i, Sdouble& lsum) { auto val = Sdouble(i+1); lsum += 1/val * 1/val; }, sum);
+
+    std::cout <<
+            "Sum from 0 to " << n-1 <<
+            ", computed in parallel, is " << sum << std::endl;
 
     // Compare to a sequential loop.
-    int seqSum = 0;
+    Sdouble seqSum = 0;
     for (int i = 0; i < n; ++i) {
-        seqSum += i * i;
+        Sdouble val = i + 1;
+        seqSum += 1/val * 1/val;
     }
-    printf(
-            "Sum of squares of integers from 0 to %i, "
-            "computed sequentially, is %i\n",
-            n - 1, seqSum);
+    std::cout <<
+                 "Sum from 0 to " << n-1 <<
+                 ", computed in sequential, is " << seqSum << std::endl;
+
     Kokkos::finalize();
-#if defined(KOKKOS_ENABLE_CXX11_DISPATCH_LAMBDA)
-    return (sum == seqSum) ? 0 : -1;
-#else
+
     return 0;
-#endif
 }
