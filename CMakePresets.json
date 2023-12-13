@@ -22,7 +22,10 @@
     },
     {
       "name": "develop",
-      "inherits": ["all", "download"]
+      "inherits": ["all", "download"],
+      "cacheVariables": {
+        "SHAMAN_ENABLE_TESTS": "ON"
+      }
     }
   ],
   "buildPresets": [
