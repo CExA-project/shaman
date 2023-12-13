@@ -18,44 +18,40 @@
 
 #include <shaman.h>
 
-//
-// First reduction (parallel_reduce) example:
-//   1. Start up Kokkos
-//   2. Execute a parallel_reduce loop in the default execution space,
-//      using a C++11 lambda to define the loop body
-//   3. Shut down Kokkos
-//
-// This example only builds if C++11 is enabled.  Compare this example
-// to 02_simple_reduce, which uses a functor to define the loop body
-// of the parallel_reduce.
-//
+template <typename ScalarType>
+bool small_test(size_t n) {
+    ScalarType sum = 0;
+    Kokkos::parallel_reduce(
+            n, KOKKOS_LAMBDA(const int i, ScalarType& lsum) { auto val = ScalarType(i+1); lsum += Kokkos::log(val); }, sum);
+
+    std::cout <<
+              "Sum from 0 to " << n-1 <<
+              ", computed in parallel, is " << sum << std::endl;
+
+    // Compare to a sequential loop.
+    ScalarType seqSum = 0;
+    for (int i = 0; i < n; ++i) {
+        ScalarType val = i + 1;
+        seqSum += Kokkos::log(val);
+    }
+    std::cout <<
+              "Sum from 0 to " << n-1 <<
+              ", computed in sequential, is " << seqSum << std::endl;
+    return true;
+}
+
 
 int main(int argc, char* argv[]) {
     Kokkos::initialize(argc, argv);
-    const int n = 1<<24;
+    const int n = 1<<20;
 
     // Compute the sum of squares of integers from 0 to n-1, in
     // parallel, using Kokkos.  This time, use a lambda instead of a
     // functor.  The lambda takes the same arguments as the functor's
     // operator().
-    Sdouble sum = 0;
 
-    Kokkos::parallel_reduce(
-      n, KOKKOS_LAMBDA(const int i, Sdouble& lsum) { auto val = Sdouble(i+1); lsum += 1/val * 1/val; }, sum);
-
-    std::cout <<
-            "Sum from 0 to " << n-1 <<
-            ", computed in parallel, is " << sum << std::endl;
-
-    // Compare to a sequential loop.
-    Sdouble seqSum = 0;
-    for (int i = 0; i < n; ++i) {
-        Sdouble val = i + 1;
-        seqSum += 1/val * 1/val;
-    }
-    std::cout <<
-                 "Sum from 0 to " << n-1 <<
-                 ", computed in sequential, is " << seqSum << std::endl;
+    small_test<double>(n);
+    small_test<Sdouble>(n);
 
     Kokkos::finalize();
 
