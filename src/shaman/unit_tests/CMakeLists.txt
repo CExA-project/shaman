@@ -4,7 +4,7 @@ if (GTest_FOUND)
     include(GoogleTest)
 
     add_executable(shaman_unittests test_eft.cc)
-    target_link_libraries(shaman_unittests GTest::Main)
+    target_link_libraries(shaman_unittests GTest::gtest_main)
 
     target_compile_features(shaman_unittests PUBLIC
     cxx_std_11 # for std::fma
